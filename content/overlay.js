@@ -157,9 +157,9 @@ MessengerNotifications.prototype = {
     this.indicatorStream.write(cmd, cmd.length);
   },
 
-                /**
-                 * Receive an event when a new mail is added to a folder.
-                 */
+  /**
+   * Receive an event when a new mail is added to a folder.
+   */
   msgAdded: function msgAdded(aMsg) {
     var header = aMsg.QueryInterface(nsIMsgDBHdr);
     var junkScore = header.getStringProperty("junkscore");
