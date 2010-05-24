@@ -1,0 +1,53 @@
+==============================================================
+
+= = = = = = = = = =   Mozilla Read Me    = = = = = = = = = = =
+
+==============================================================
+
+Libnotify-mozilla is subject to the terms detailed in the license
+agreement accompanying it.
+
+This Read Me file contains information about system
+requirements and installation instructions.
+
+For more info on Libnotify-mozilla, see 
+https://launchpad.net/libnotify-mozilla. To submit bugs
+or other feedback, see https://bugs.launchpad.net/libnotify-mozilla.
+
+
+==============================================================
+
+                      Getting Mozilla
+
+==============================================================
+
+For the very latest builds, see
+
+  https://launchpad.net/libnotify-mozilla/+download
+
+
+==============================================================
+
+                    System Requirements
+
+==============================================================
+
+
+*Linux
+
+	-The following library versions (or compatible) are
+	 required: notify-send and python-indicate.
+    -Thunderbird 3.0.*
+
+
+==============================================================
+
+                 Installation Instructions
+
+==============================================================
+
+
+Linux Installation Instructions
+-------------------------------
+        Proceed like many other addon installation. Please, 
+        make sure you have notify-send and python-indicate installed.

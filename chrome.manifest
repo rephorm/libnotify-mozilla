@@ -1,0 +1,5 @@
+content	libnotifypopups	content/
+locale	libnotifypopups	en-US	locale/en-US/
+skin	libnotifypopups	classic/1.0	skin/
+overlay	chrome://browser/content/browser.xul	chrome://libnotifypopups/content/firefoxOverlay.xul
+overlay	chrome://messenger/content/messenger.xul	chrome://libnotifypopups/content/thunderbirdOverlay.xul

@@ -1,0 +1,39 @@
+# Libnotify-mozilla Translations
+# Copyright (C) 2010 Ruben Verweij
+# This file is distributed under the same license as the libnotify-mozilla package.
+# Ruben Verweij <rbnvrw@gmail.com>, 2010.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2010-02-24 11:46+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#
+# Copyright (c) 2009 Patrik Dufresne & Ruben Verweij
+#
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the Free
+# Software Foundation; either version 3 of the License, or (at your option)
+# any later version.
+msgid "mail.new.mail.summary"
+msgstr "New mail received"
+
+msgid "mail.new.mails.summary"
+msgstr "%1$S new mails received"
+
+msgid "mail.new.mails.body"
+msgstr "%1$S, from %2$S"
+
+msgid "mail.new.mails.bodyWithFolder"
+msgstr "%1$S, from %2$S in %3$S"
+
+msgid "extensions.libnotifypopups.description"
+msgstr "Displays notification on new mail via notify-send (libnotify)"

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+   Copyright (c) 2009 Patrik Dufresne & Ruben Verweij
+-->
+
+<!--
+  This program is free software; you can redistribute it and/or modify it
+  under the terms of the GNU General Public License as published by the Free
+  Software Foundation; either version 3 of the License, or (at your option)
+  any later version.
+-->
+
+<?xml-stylesheet href="chrome://libnotifypopups/skin/overlay.css" type="text/css"?>
+<!DOCTYPE overlay SYSTEM "chrome://libnotifypopups/locale/libnotifypopups.dtd">
+<overlay id="libnotifypopups-overlay"
+         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+  <script src="encoding.js"/>
+  <script src="overlay.js"/>
+  <stringbundleset id="stringbundleset">
+    <stringbundle id="libnotifypopups-strings" src="chrome://libnotifypopups/locale/libnotifypopups.properties"/>
+  </stringbundleset>
+
+</overlay>
