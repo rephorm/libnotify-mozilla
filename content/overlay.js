@@ -149,106 +149,13 @@ MessengerNotifications.prototype = {
 
   },
 
-  inIndicators: function inIndicators(indicator) {
-    for(var i = 0; i < this.indicators.length; i++) {
-      if(this.indicators[i].folderName == indicator){ return i; }
-    }
-    return -1;
-  },
-
   sendIndicator: function sendIndicator(folder) {
     var num = folder.getNumUnread(false);
-    var cmd = "show::" + folder.name + "::" + num + "\n";
+    foldername = folder.prettiestName + " <" + folder.rootFolder.prettiestName + ">"
+    var cmd = "show::" + foldername + "::" + num + "\n";
 
     this.indicatorStream.write(cmd, cmd.length);
   },
-
-  /**
-  * Send Indicators to the Indicator Applet
-  */
-  sendIndicators: function sendIndicators() {
-    var prefs = Components.classes["@mozilla.org/preferences-service;1"]
-      .getService(nsIPrefService);
-    var enableIndicator = prefs.getBoolPref("libnotifypopups.showIndicator");
-    if(enableIndicator){
-      var acctMgr = Components.classes["@mozilla.org/messenger/account-manager;1"]
-        .getService(nsIMsgAccountManager);
-      var accounts = acctMgr.accounts;
-      this.indicators = new Array(0);
-      for (var i = 0; i < accounts.Count(); i++) {
-        var account = accounts.QueryElementAt(i, nsIMsgAccount);
-        var rootFolder = account.incomingServer.rootFolder; // nsIMsgFolder
-        var unread = rootFolder.getNumUnread(true);
-        if(unread > 0){
-          var item = {'folderName': rootFolder.prettiestName, 'count': unread};
-          item.folderName;
-          item.count;
-          this.indicators[this.indicators.length] = item;
-        }
-      }
-
-      var em = Components.classes["@mozilla.org/extensions/manager;1"].
-        getService(Components.interfaces.nsIExtensionManager);
-
-      if(this.indicators.length > 0){
-        // Then send the new indicators
-        try {
-
-          var pythonfile = em.getInstallLocation(ADDON_ID).getItemFile(ADDON_ID, "indicator.py");
-
-          var file = Components.classes["@mozilla.org/file/local;1"].
-            createInstance(nsILocalFile);
-          file.initWithPath(pythonfile.path);
-
-          var process = Components.classes["@mozilla.org/process/util;1"]
-            .createInstance(nsIProcess);
-          process.init(file);
-
-          var args = new Array(this.indicators.length);    
-
-          for(var i = 0; i < args.length; i++)
-          {
-            args[i] = this.indicators[i].folderName + ": " + this.indicators[i].count;
-          }
-
-          process.run(false, args, args.length);
-          // Call us again in one min until I find out how to detect a folder change
-          var delay = function(){ libnotifypopups.sendIndicators(); };
-          setTimeout(delay, 60000);
-
-        }catch(e){
-          var prompts = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
-            .getService(nsIPromptService);
-          prompts.alert(null, "Indicator error", "Something went wrong with adding an indicator to the Indicator Applet. Please report this to http://www.bugs.launchpad.net/libnotifymozilla");
-          Components.utils.reportError(e);
-          throw e;
-        }
-      }else{
-        try {
-          var pythonfile = em.getInstallLocation(ADDON_ID).getItemFile(ADDON_ID, "quit.py");
-
-          var file = Components.classes["@mozilla.org/file/local;1"].
-            createInstance(nsILocalFile);
-          file.initWithPath(pythonfile.path);
-
-          var process = Components.classes["@mozilla.org/process/util;1"]
-            .createInstance(nsIProcess);
-          process.init(file);
-
-          var args = new Array(0);
-
-          process.run(false, args, args.length);
-        }catch(e){
-          var prompts = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
-            .getService(nsIPromptService);
-          prompts.alert(null, "Indicator error", "Something went wrong with adding an indicator to the Indicator Applet. Please report this to http://www.bugs.launchpad.net/libnotifymozilla");
-          Components.utils.reportError(e);
-          throw e;
-        }
-      }
-    } // enableIndicator
-  },
-
 
                 /**
                  * Receive an event when a new mail is added to a folder.
