@@ -103,7 +103,7 @@ MessengerNotifications.prototype = {
       .getService(nsIMsgFolderNotificationService);
     notificationService.addListener(this, notificationService.msgAdded, notificationService.itemAdded); // TB 3 = itemAdded, TB 2 = msgAdded
 
-    // Check if libnotifypopups.showFolder, libnotifypopups.showNews and libnotifypopups.showIndicator exists
+    // Check if libnotifypopups.showFolder, libnotifypopups.showNews and libnotifypopups.showIndicator exists. If not, set default values.
     var prefs = Components.classes["@mozilla.org/preferences-service;1"]
       .getService(nsIPrefService);
     if(!prefs.prefHasUserValue("libnotifypopups.showFolder")) {
@@ -120,10 +120,14 @@ MessengerNotifications.prototype = {
   },
 
   initIndicators: function initIndicators() {
-    // XXX use installed location 
-    // var pythonfile = em.getInstallLocation(ADDON_ID).getItemFile(ADDON_ID, "messaging.py"); 
-    var pythonpath = "/home/rephorm/bin/messaging.py";
-    var fifopath = "/tmp/thunderbird-indicator-fifo";
+    var em = Components.classes["@mozilla.org/extensions/manager;1"]
+             .getService(Components.interfaces.nsIExtensionManager);
+
+    var pythonpath = em.getInstallLocation(ADDON_ID).getItemFile(ADDON_ID, "indicator.py").path; 
+    log("pythonpath: " + pythonpath);
+    var fifopath = em.getInstallLocation(ADDON_ID).getItemFile(ADDON_ID, "indicator-fifo").path; 
+    //var pythonpath = "/home/rephorm/bin/messaging.py";
+    //var fifopath = "/tmp/thunderbird-indicator-fifo";
 
     // run python server
     var file = Components.classes["@mozilla.org/file/local;1"].
@@ -135,13 +139,20 @@ MessengerNotifications.prototype = {
     process.init(file);
     this.process = process
 
-      args = new Array(0)
-      process.run(false, args, args.length);
+    // run once blocking to create fifo
+    args = new Array(fifopath, 'mkfifoonly')
+    process.run(true, args, args.length);
+
+    // run again to start server
+    args = new Array(fifopath)
+    process.run(false, args, args.length);
+
 
     // connect to fifo so we can send messages
     file = Components.classes["@mozilla.org/file/local;1"]
       .createInstance(Components.interfaces.nsILocalFile);
     file.initWithPath(fifopath);
+
     var stream = Components.classes["@mozilla.org/network/file-output-stream;1"]
       .createInstance(Components.interfaces.nsIFileOutputStream);
     stream.init(file, 0x02, -1, 0) // 0x02 == writeonly
@@ -151,10 +162,36 @@ MessengerNotifications.prototype = {
 
   sendIndicator: function sendIndicator(folder) {
     var num = folder.getNumUnread(false);
-    foldername = folder.prettiestName + " <" + folder.rootFolder.prettiestName + ">"
-    var cmd = "show::" + foldername + "::" + num + "\n";
+    var label = this.indicatorLabel(folder)
+    var cmd = "show::" + label + "::" + num + "\n";
 
+    this.indicators[this.indicators.length] = label;
     this.indicatorStream.write(cmd, cmd.length);
+  },
+
+  hideIndicators: function hideIndicators(folders) {
+    log("hideIndicators (" + folders.length + ")");
+    for (var i in folders) {
+      this.hideIndicator(folders[i]);
+    }
+  },
+
+  hideIndicator: function hideIndicator(folder) {
+    var label = this.indicatorLabel(folder);
+    log("hide indicator: " + label);
+    var i = this.indicators.indexOf(label);
+    log("index: " + i);
+    if (i != -1)
+    {
+      var cmd = "hide::" + label;
+      log("cmd: " + cmd);
+      this.indicators.splice(i, 1);
+      this.indicatorStream.write(cmd, cmd.length);
+    }
+  },
+
+  indicatorLabel: function (folder) {
+    return folder.prettiestName + " - " + folder.rootFolder.prettiestName;
   },
 
   /**
@@ -174,15 +211,19 @@ MessengerNotifications.prototype = {
       if (header.flags & MSG_FLAG_NEW) {
         this.sendIndicator(folder);
 
+        // queue notification
         var folderRoot = folder.rootFolder;
         var folderName = folderRoot.prettiestName;
         var subject = header.mime2DecodedSubject
-          var author = header.mime2DecodedAuthor;
+        var author = header.mime2DecodedAuthor;
         this.handleNewMailReceive(folderName, subject, author);
       }
     }
   },
 
+  /**
+   * Used by Thunderbird 2
+   */
   itemAdded: function itemAdded(aItem) {
     this.msgAdded(aItem);
   },
@@ -209,6 +250,7 @@ MessengerNotifications.prototype = {
       return false;
     }
 
+    // XXX This code is never reached...
     // We don't check certain folders because they don't contain useful stuff
     if ((aFolder.flags & FLR_FLAG_TRASH) == FLR_FLAG_TRASH ||
       (aFolder.flags & FLR_FLAG_JUNK) == FLR_FLAG_JUNK ||
@@ -372,7 +414,17 @@ MessengerNotifications.prototype = {
 var libnotifypopups = null;
 
 function libnotifypopups_onLoad() {
+  log("onLoad libnotifypopups");
   libnotifypopups = new MessengerNotifications();
+  window.document.getElementById('folderTree').addEventListener("select", function(ev) {
+    log("folder(s) selected...")
+    //var folders = this.getSelectedFolders();
+
+    var folders = gFolderTreeView.getSelectedFolders();
+    log("got folders");
+    log("folders:" + folders);
+    libnotifypopups.hideIndicators(folders);
+  }, false);
   removeEventListener("load", libnotifypopups_onLoad, true);
 }
 
@@ -381,6 +433,7 @@ function libnotifypopups_unLoad() {
     .getService(nsIPrefService);
   var enableIndicator = prefs.getBoolPref("libnotifypopups.showIndicator");
 
+  log("unload: " + libnotifypopups.process);
   if (libnotifypopups.process)
     libnotifypopups.process.kill();
 
@@ -393,3 +446,4 @@ function libnotifypopups_unLoad() {
 
 addEventListener("load", libnotifypopups_onLoad, false);
 addEventListener("unload", libnotifypopups_unLoad, false);
+
