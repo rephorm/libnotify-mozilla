@@ -18,6 +18,7 @@
     <em:version>0.1.4</em:version>
     <em:creator>Patrik Dufresne</em:creator>
     <em:contributor>Ruben Verweij</em:contributor>
+    <em:contributor>Brian Mattern</em:contributor>
     <em:targetApplication>
       <Description>
         <em:id>{ec8030f7-c20a-464f-9b0e-13a3a9e97384}</em:id> <!-- firefox -->
